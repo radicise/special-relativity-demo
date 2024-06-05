@@ -6,21 +6,25 @@ public class Transformations {
 	public static final Matrix boostYInv;
 	static {
 		double lf = 1.0d / Math.sqrt(1 - (dv * dv));
-		boostX = new Matrix(new double[][]{new double[]{lf, -(lf * dv), 0.0d},
-			new double[]{-(lf * dv), lf, 0.0d},
-			new double[]{0.0d, 0.0d, 1.0d}
+		boostX = new Matrix(new double[][]{new double[]{lf, -(lf * dv), 0.0d, 0.0d},
+			new double[]{-(lf * dv), lf, 0.0d, 0.0d},
+			new double[]{0.0d, 0.0d, 1.0d, 0.0d},
+			new double[]{0.0d, 0.0d, 0.0d, 1.0d}
 		});
-		boostY = new Matrix(new double[][]{new double[]{lf, 0.0d, -(lf * dv)},
-			new double[]{0.0d, 1.0d, 0.0d},
-			new double[]{-(lf * dv), 0.0d, lf}
+		boostY = new Matrix(new double[][]{new double[]{lf, 0.0d, -(lf * dv), 0.0d},
+			new double[]{0.0d, 1.0d, 0.0d, 0.0d},
+			new double[]{-(lf * dv), 0.0d, lf, 0.0d},
+			new double[]{0.0d, 0.0d, 0.0d, 1.0d}
 		});
-		boostXInv = new Matrix(new double[][]{new double[]{lf, lf * dv, 0.0d},
-			new double[]{lf * dv, lf, 0.0d},
-			new double[]{0.0d, 0.0d, 1.0d}
+		boostXInv = new Matrix(new double[][]{new double[]{lf, lf * dv, 0.0d, 0.0d},
+			new double[]{lf * dv, lf, 0.0d, 0.0d},
+			new double[]{0.0d, 0.0d, 1.0d, 0.0d},
+			new double[]{0.0d, 0.0d, 0.0d, 1.0d}
 		});
-		boostYInv = new Matrix(new double[][]{new double[]{lf, 0.0d, lf * dv},
-			new double[]{0.0d, 1.0d, 0.0d},
-			new double[]{lf * dv, 0.0d, lf}
+		boostYInv = new Matrix(new double[][]{new double[]{lf, 0.0d, lf * dv, 0.0d},
+			new double[]{0.0d, 1.0d, 0.0d, 0.0d},
+			new double[]{lf * dv, 0.0d, lf, 0.0d},
+			new double[]{0.0d, 0.0d, 0.0d, 1.0d}
 		});
 	}
 }
