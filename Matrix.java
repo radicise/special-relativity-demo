@@ -17,6 +17,14 @@ public class Matrix {
 	n = matrix[0].length;
     }
 
+    public static Matrix identity(int n) {
+	double[][] parts = new double[n][n];
+	for (int i = 0; i < n; i++) {
+	    parts[i][i] = 1.0;
+	}
+	return new Matrix(parts);
+    }
+
     // We will only transform matrices. Since we are applying
     // the same transformation to a bunch of vectors, we just
     // keep a matrix with all the vectors as columns and
