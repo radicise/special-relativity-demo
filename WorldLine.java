@@ -39,7 +39,8 @@ public class WorldLine {
 					return null;
 				}
 				double transformedPrevTime = prevEvent.getEntry(0, 0);
-				return Matrix.weightedAvg(prevEvent, event, (time - transformedPrevTime) / (transformedTime - transformedPrevTime));
+				Matrix pos = Matrix.weightedAvg(prevEvent, event, (time - transformedPrevTime) / (transformedTime - transformedPrevTime));
+				return pos;
 			}
 			i++;
 		}

@@ -1,6 +1,6 @@
 public class Transformations {
-	public static final double dv = 0.1;
-	public static final double dΘ = 0.1;
+	public static final double dv = 0.001 * Simulator.SCALING;
+	public static final double dth = Math.PI / 18.0d;
 	public static final Matrix boostX;
 	public static final Matrix boostXInv;
 	public static final Matrix boostY;
@@ -36,14 +36,14 @@ public class Transformations {
 
 		rotateClock = new Matrix(new double[][]{
 			new double[]{1.0d, 0.0d, 0.0d, 0.0d},
-			new double[]{0.0d, Math.cos(dΘ), -Math.sin(dΘ), 0.0d},
-			new double[]{0.0d, Math.sin(dΘ), Math.cos(dΘ), 0.0d},
+			new double[]{0.0d, Math.cos(dth), -Math.sin(dth), 0.0d},
+			new double[]{0.0d, Math.sin(dth), Math.cos(dth), 0.0d},
 			new double[]{0.0d, 0.0d, 0.0d, 1.0d}
 		});
 		rotateCounterClock = new Matrix(new double[][]{
 			new double[]{1.0d, 0.0d, 0.0d, 0.0d},
-			new double[]{0.0d, Math.cos(dΘ), Math.sin(dΘ), 0.0d},
-			new double[]{0.0d, -Math.sin(dΘ), Math.cos(dΘ), 0.0d},
+			new double[]{0.0d, Math.cos(dth), Math.sin(dth), 0.0d},
+			new double[]{0.0d, -Math.sin(dth), Math.cos(dth), 0.0d},
 			new double[]{0.0d, 0.0d, 0.0d, 1.0d}
 		});
 	}

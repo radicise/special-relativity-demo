@@ -2,7 +2,7 @@ import java.util.stream.IntStream;
 
 public class Matrix {
     public final int m, n;
-    private final double[][] matrix;// TO NEVER HAVE ITS VALUES CHANGED
+    private final double[][] matrix;
 
     public Matrix(int m, int n) {
 	matrix = new double[m][n];
@@ -76,5 +76,27 @@ public class Matrix {
 	Matrix c = new Matrix(new double[][] {{20, 19}, {18, 17}});
 	System.out.println(a.transform(b));
 	System.out.println(b.transform(c));
+    }
+    public Matrix subtractFrom(Matrix a) {
+        assert (m == a.m);
+	assert (n == a.n);
+	double[][] mtrx = new double[m][n];
+	IntStream.range(0, m).parallel().forEach((row) -> {
+            IntStream.range(0, n).parallel().forEach((col) -> {
+                mtrx[row][col] = a.matrix[row][col] - matrix[row][col];
+	    });
+	});
+	return new Matrix(mtrx);
+    }
+    public static Matrix add(Matrix a, Matrix b) {
+        assert (a.m == b.m);
+	assert (a.n == b.n);
+	double[][] mtrx = new double[a.m][a.n];
+	IntStream.range(0, a.m).parallel().forEach((row) -> {
+            IntStream.range(0, a.n).parallel().forEach((col) -> {
+                mtrx[row][col] = a.matrix[row][col] + b.matrix[row][col];
+	    });
+	});
+	return new Matrix(mtrx);
     }
 }
