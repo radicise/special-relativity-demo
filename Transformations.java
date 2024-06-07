@@ -1,6 +1,6 @@
 public class Transformations {
 	public static final double dv = 0.001 * Simulator.SCALING;
-	public static final double dth = Math.PI / 18.0d;
+	public static final double dth = Math.PI / 8.0d;
 	public static final Matrix boostX;
 	public static final Matrix boostXInv;
 	public static final Matrix boostY;

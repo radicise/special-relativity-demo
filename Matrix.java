@@ -50,7 +50,7 @@ public class Matrix {
 	for (int row = 0; row < m; row++) {
 	    s += "[ ";
 	    for (int col = 0; col < n; col++) {
-		s += matrix[row][col] + " ";
+		s += String.format("%7.2f", matrix[row][col]) + " ";
 	    }
 	    s += "]\n";
 	}
@@ -69,13 +69,6 @@ public class Matrix {
 	    });
 	});
 	return new Matrix(weightedMatrix);
-    }
-    public static void main(String[] args) {
-	Matrix a = new Matrix(new double[][] {{5, 6, 7}, {8, 9, 10}, {11, 12, 13}});
-	Matrix b = new Matrix(new double[][] {{1, 2}, {3, 4}, {5, 6}});
-	Matrix c = new Matrix(new double[][] {{20, 19}, {18, 17}});
-	System.out.println(a.transform(b));
-	System.out.println(b.transform(c));
     }
     public Matrix subtractFrom(Matrix a) {
         assert (m == a.m);
