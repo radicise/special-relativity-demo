@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.io.PrintStream;
 public class WorldLine {
 	/*
 	 *
@@ -15,6 +16,14 @@ public class WorldLine {
 	public void addEvent(Matrix event) {
 		events.add(event);
 		return;
+	}
+	public void print(PrintStream ps) {
+		int m = events.size();
+		for (int i = 0; i < m; i++) {
+			System.out.println(i + ":");
+			System.out.println(events.get(i));
+		}
+		System.out.println();
 	}
 	public Matrix resolvePosition(Matrix transformation, double time) {
 		int i = 0;
