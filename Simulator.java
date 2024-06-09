@@ -2,6 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 public class Simulator {
     public static final double SCALING = 100.0d;
@@ -26,7 +27,9 @@ public class Simulator {
 	frm.add(displ);
 	frm.setSize(512 + 50, 512 + 150);
 	frm.setVisible(true);
-	Graphics gr = displ.getGraphics();
+	displ.createBufferStrategy(2);
+	BufferStrategy bufferStrategy = displ.getBufferStrategy();
+	Graphics gr = bufferStrategy.getDrawGraphics();
 	//long mn = (long) (timeStep * 1000000000.0d);
 	//double ts = ((double) mn) / 1000000000.0d;
 	//int nanos = (int) (mn % 1000000L);
@@ -78,6 +81,7 @@ public class Simulator {
 		System.out.println(rotator);
 		*/
 		displ.paint(gr);
+		bufferStrategy.show();
 		//Thread.sleep(mn, nanos);
 		t2 = System.currentTimeMillis();
 		elapsed[0] = ((double) (t1 - t2)) / 1000.0d;
@@ -91,47 +95,54 @@ public class Simulator {
 }
 class Vehicle {
     static final double SIZE = 0.001d * Simulator.SCALING;
-    static Matrix[] pts;
-    static Matrix[] ptst;
-    static Matrix[] ptstt;
+    static Matrix pts;
+    static Matrix ptst;
+    static Matrix ptstt;
     static {
-	    pts = new Matrix[8];
-	    for (int i = 0; i < pts.length; i++) {
-		pts[i] = new Matrix(new double[][]{new double[]{0.0d}, new double[]{Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE}, new double[]{Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE}, new double[]{1.0d}});
+	    double[][] pts_inner = new double[4][8];
+	    double[][] ptst_inner = new double[pts_inner.length][pts_inner[0].length];
+	    double[][] ptstt_inner = new double[pts_inner.length][pts_inner[0].length];
+	    for (int i = 0; i < pts_inner[0].length; i++) {
+		pts_inner[0][i] = 0.0d;
+		pts_inner[1][i] = Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		pts_inner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		pts_inner[3][i] = 1.0d;
+		ptst_inner[0][i] = -Simulator.endOfTime;
+		ptst_inner[1][i] = Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		ptst_inner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		ptst_inner[3][i] = 1.0d;
+		ptstt_inner[0][i] = Simulator.endOfTime;
+		ptstt_inner[1][i] = Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		ptstt_inner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		ptstt_inner[3][i] = 1.0d;
             }
-	    ptst = new Matrix[pts.length];
-	    for (int i = 0; i < pts.length; i++) {
-		ptst[i] = new Matrix(new double[][]{new double[]{-(Simulator.endOfTime)}, new double[]{Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE}, new double[]{Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE}, new double[]{1.0d}});
-	    }
-	    ptstt = new Matrix[pts.length];
-	    for (int i = 0; i < pts.length; i++) {
-		ptstt[i] = new Matrix(new double[][]{new double[]{Simulator.endOfTime}, new double[]{Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE}, new double[]{Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE}, new double[]{1.0d}});
-	    }
+	    pts = new Matrix(pts_inner);
+	    ptst = new Matrix(ptst_inner);
+	    ptstt = new Matrix(ptstt_inner);
     }
-    WorldLine[] lines;
+    WorldLine line;
     Color color;
     Vehicle() {
-    	lines = new WorldLine[pts.length];
-	for (int i = 0; i < pts.length; i++) {
-		lines[i] = new WorldLine();
-		lines[i].addEvent(pts[i]);
-	}
+    	line = new WorldLine();
+	line.addEvent(pts);
 	color = new Color(255, 0, 0);
     }
     Vehicle(double x, double y) {
-	Matrix adjustment = new Matrix(new double[][]{new double[]{0.0d}, new double[]{x}, new double[]{y}, new double[]{0.0d}});
-	lines = new WorldLine[pts.length];
-	for (int i = 0; i < pts.length; i++) {
-		lines[i] = new WorldLine();
-		lines[i].addEvent(Matrix.add(ptst[i], adjustment));
-		lines[i].addEvent(Matrix.add(ptstt[i], adjustment));
+	double[][] adj_inner = new double[pts.rows()][pts.cols()];
+	for (int i = 0; i < adj_inner[0].length; i++) {
+	    adj_inner[0][i] = 0.0d;
+	    adj_inner[1][i] = x;
+	    adj_inner[2][i] = y;
+	    adj_inner[3][i] = 0.0d;
 	}
+	Matrix adjustment = new Matrix(adj_inner);
+	line = new WorldLine();
+	line.addEvent(Matrix.add(ptst, adjustment));
+	line.addEvent(Matrix.add(ptstt, adjustment));
 	color = new Color(156 + (int) (Math.random() * 100.0d), 156 + (int) (Math.random() * 100.0d), 156 + (int) (Math.random() * 100.0d));
     }
     void addEvent(Matrix transformation) {
-	for (int i = 0; i < pts.length; i++) {
-		lines[i].addEvent(transformation.transform(pts[i]));
-	}
+	line.addEvent(transformation.transform(pts));
     }
 }
 class Universe {
@@ -200,6 +211,7 @@ class Display extends Canvas {
     int middleX;
     int middleY;
     double scale;
+    Matrix toScreen;
     double viewDistance;
     Universe universe;
     static final Color BLACK = new Color(0, 0, 0);
@@ -211,6 +223,10 @@ class Display extends Canvas {
 	scale = s;
 	middleX = mX;
 	middleY = mY;
+	toScreen = new Matrix(new double[][] {
+		new double[] {0.0d, scale, 0.0d, middleX},
+		new double[] {0.0d, 0.0d, -scale, middleX},
+	    });
 	universe = u;
 	viewDistance = v;
 	ofr = 0;
@@ -229,39 +245,14 @@ class Display extends Canvas {
 	g.drawString("Buoy time: " + Double.toString(Simulator.totalTransformInv.getEntry(0, 3)) + "seconds", 20, 80);
 	int m = universe.vehicles.size();
 	Matrix tt = Simulator.totalTransform;
-	Matrix[] pos = new Matrix[Vehicle.pts.length];
-	for (int i = 0; i < Vehicle.pts.length; i++) {
-	    pos[i] = Vehicle.pts[i];
-	}
-	for (int i = 0; i < Vehicle.pts.length; i++) {
-	    Matrix pos1 = pos[i];
-	    Matrix pos2;
-	    if ((i + 1) == Vehicle.pts.length) {
-		pos2 = pos[0];
-	    }
-	    else {
-	        pos2 = pos[i + 1];
-	    }
-	    if ((pos1 != null) && (pos2 != null)) {
-		g.drawLine(middleX + (int) (pos1.getEntry(1, 0) * scale), middleY - (int) (pos1.getEntry(2, 0) * scale), middleX + (int) (pos2.getEntry(1, 0) * scale), middleY - (int) (pos2.getEntry(2, 0) * scale));
-	    }
-	}
-	for (int i = 0; i < Vehicle.pts.length; i++) {
-	    Matrix pos1 = pos[i];
-	    if (pos1 != null) {
-		g.drawRect(middleX + (int) (pos1.getEntry(1, 0) * scale), middleY - (int) (pos1.getEntry(2, 0) * scale), 1, 1);
-	    }
-	}
+	int[][] centerVehicle = toScreen.transform(Vehicle.pts).toIntArray();
+	g.drawPolygon(centerVehicle[0], centerVehicle[1], centerVehicle[0].length);
 	for (int vi = 0; vi < m; vi++) {
             Vehicle v = universe.vehicles.get(vi);
 	    g.setColor(v.color);
 	    double time = Simulator.time;
-	    for (int i = 0; i < Vehicle.pts.length; i++) {
-	    	pos[i] = v.lines[i].resolvePosition(tt, time);
-		if (pos[i] != null) {
-		    pos[i] = rot.transform(pos[i]);
-		}
-	    }
+	    int[][] pos = toScreen.transform(rot.transform(v.line.resolvePosition(tt, time))).toIntArray();
+	    g.drawPolygon(pos[0], pos[1], pos[0].length);
 	    /*
 	    if (i == (m - 1)) {
 	    	if ((pos1 != null) && (pos2 != null)) {
@@ -271,25 +262,6 @@ class Display extends Canvas {
 		}
 	    }
 	    */
-	    for (int i = 0; i < Vehicle.pts.length; i++) {
-		    Matrix pos1 = pos[i];
-		    Matrix pos2;
-		    if ((i + 1) == Vehicle.pts.length) {
-			pos2 = pos[0];
-		    }
-		    else {
-		        pos2 = pos[i + 1];
-		    }
-		    if ((pos1 != null) && (pos2 != null)) {
-			g.drawLine(middleX + (int) (pos1.getEntry(1, 0) * scale), middleY - (int) (pos1.getEntry(2, 0) * scale), middleX + (int) (pos2.getEntry(1, 0) * scale), middleY - (int) (pos2.getEntry(2, 0) * scale));
-		    }
-	    }
-	    for (int i = 0; i < Vehicle.pts.length; i++) {
-		    Matrix pos1 = pos[i];
-		    if (pos1 != null) {
-			g.drawRect(middleX + (int) (pos1.getEntry(1, 0) * scale), middleY - (int) (pos1.getEntry(2, 0) * scale), 1, 1);
-		    }
-	    }
 	}
     }
 }

@@ -92,4 +92,19 @@ public class Matrix {
 	});
 	return new Matrix(mtrx);
     }
+    public int rows() {
+	return m;
+    }
+    public int cols() {
+	return n;
+    }
+    public int[][] toIntArray() {
+	int[][] ret = new int[m][n];
+	IntStream.range(0, m).parallel().forEach((row) -> {
+		IntStream.range(0, n).parallel().forEach((col) -> {
+			ret[row][col] = (int)matrix[row][col];
+		    });
+	    });
+	return ret;
+    }
 }
