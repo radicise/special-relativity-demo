@@ -96,54 +96,65 @@ public class Simulator {
 }
 class Vehicle {
     static final double SIZE = 0.001d * Simulator.SCALING;
-    static Matrix pts;
-    static Matrix ptst;
-    static Matrix ptstt;
+    static Matrix[] pts;
+    static Matrix ptsMatrix;
+    static Matrix[] ptst;
+    static Matrix[] ptstt;
     static {
-	    double[][] pts_inner = new double[4][8];
-	    double[][] ptst_inner = new double[pts_inner.length][pts_inner[0].length];
-	    double[][] ptstt_inner = new double[pts_inner.length][pts_inner[0].length];
-	    for (int i = 0; i < pts_inner[0].length; i++) {
-		pts_inner[0][i] = 0.0d;
-		pts_inner[1][i] = Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE;
-		pts_inner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
-		pts_inner[3][i] = 1.0d;
-		ptst_inner[0][i] = -Simulator.endOfTime;
-		ptst_inner[1][i] = Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE;
-		ptst_inner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
-		ptst_inner[3][i] = 1.0d;
-		ptstt_inner[0][i] = Simulator.endOfTime;
-		ptstt_inner[1][i] = Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE;
-		ptstt_inner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
-		ptstt_inner[3][i] = 1.0d;
+	pts = new Matrix[8];
+	double[][] ptsMatrixInner = new double[4][pts.length];
+	ptst = new Matrix[pts.length];
+	ptstt = new Matrix[pts.length];
+	    for (int i = 0; i < pts.length; i++) {
+		pts[i] = new Matrix(new double[][] {
+			new double[] {0.0d},
+			new double[] {Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {1.0d}
+		    });
+		ptsMatrixInner[0][i] = 0.0d;
+		ptsMatrixInner[1][i] = Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		ptsMatrixInner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		ptsMatrixInner[3][i] = 1.0d;
+		ptst[i] = new Matrix(new double[][] {
+			new double[] {-Simulator.endOfTime},
+			new double[] {Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {1.0d}
+		    });
+		ptstt[i] = new Matrix(new double[][] {
+			new double[] {Simulator.endOfTime},
+			new double[] {Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {1.0d}
+		    });
             }
-	    pts = new Matrix(pts_inner);
-	    ptst = new Matrix(ptst_inner);
-	    ptstt = new Matrix(ptstt_inner);
+	    ptsMatrix = new Matrix(ptsMatrixInner);
     }
-    WorldLine line;
+    WorldLine[] lines;
     Color color;
     Vehicle() {
-    	line = new WorldLine();
-	line.addEvent(pts);
+    	lines = new WorldLine[pts.length];
+	for (int i = 0; i < lines.length; i++) {
+	    lines[i] = new WorldLine();
+	    lines[i].addEvent(pts[i]);
+	}
 	color = new Color(255, 0, 0);
     }
     Vehicle(double x, double y) {
-	double[][] adj_inner = new double[pts.rows()][pts.cols()];
-	for (int i = 0; i < adj_inner[0].length; i++) {
-	    adj_inner[0][i] = 0.0d;
-	    adj_inner[1][i] = x;
-	    adj_inner[2][i] = y;
-	    adj_inner[3][i] = 0.0d;
+	Matrix adjustment = new Matrix(new double[][]{new double[]{0.0d}, new double[]{x}, new double[]{y}, new double[]{0.0d}});
+	lines = new WorldLine[pts.length];
+	for (int i = 0; i < pts.length; i++) {
+		lines[i] = new WorldLine();
+		lines[i].addEvent(Matrix.add(ptst[i], adjustment));
+		lines[i].addEvent(Matrix.add(ptstt[i], adjustment));
 	}
-	Matrix adjustment = new Matrix(adj_inner);
-	line = new WorldLine();
-	line.addEvent(Matrix.add(ptst, adjustment));
-	line.addEvent(Matrix.add(ptstt, adjustment));
 	color = new Color(156 + (int) (Math.random() * 100.0d), 156 + (int) (Math.random() * 100.0d), 156 + (int) (Math.random() * 100.0d));
     }
     void addEvent(Matrix transformation) {
-	line.addEvent(transformation.transform(pts));
+	for (int i = 0; i < pts.length; i++) {
+	    lines[i].addEvent(transformation.transform(pts[i]));
+	}
     }
 }
 class Universe {
@@ -247,14 +258,21 @@ class Display extends Canvas {
 	g.drawString("Buoy time: " + Double.toString(Simulator.totalTransformInv.getEntry(0, 3)) + "seconds", 20, 80);
 	int m = universe.vehicles.size();
 	Matrix tt = toScreen.transform(rot.transform(Simulator.totalTransform));
-	int[][] centerVehicle = toScreen.transform(Vehicle.pts).toIntArray();
+	int[][] centerVehicle = toScreen.transform(Vehicle.ptsMatrix).toIntArray();
 	g.drawPolygon(centerVehicle[1], centerVehicle[2], centerVehicle[1].length);
 	for (int vi = 0; vi < m; vi++) {
             Vehicle v = universe.vehicles.get(vi);
 	    g.setColor(v.color);
 	    double time = Simulator.time;
-	    int[][] pos = v.line.resolvePosition(tt, time).toIntArray();
-	    g.drawPolygon(pos[1], pos[2], pos[1].length);
+	    int[][] pos = new int[2][v.lines.length];
+	    for (int i = 0; i < v.lines.length; i++) {
+		Matrix l = v.lines[i].resolvePosition(tt, time);
+		for (int j = 1; j < 3; j++) {
+		    pos[j-1][i] = (int)l.getEntry(j, 0);
+		}
+	    }
+	    
+	    g.drawPolygon(pos[0], pos[1], pos[0].length);
 	    /*
 	    if (i == (m - 1)) {
 	    	if ((pos1 != null) && (pos2 != null)) {
