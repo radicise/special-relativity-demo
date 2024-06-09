@@ -4,6 +4,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 public class Simulator {
     public static final double SCALING = 100.0d;
     public static volatile Matrix totalTransform;
@@ -260,28 +261,27 @@ class Display extends Canvas {
 	Matrix tt = toScreen.transform(rot.transform(Simulator.totalTransform));
 	int[][] centerVehicle = toScreen.transform(Vehicle.ptsMatrix).toIntArray();
 	g.drawPolygon(centerVehicle[1], centerVehicle[2], centerVehicle[1].length);
-	for (int vi = 0; vi < m; vi++) {
-            Vehicle v = universe.vehicles.get(vi);
-	    g.setColor(v.color);
-	    double time = Simulator.time;
-	    int[][] pos = new int[2][v.lines.length];
-	    for (int i = 0; i < v.lines.length; i++) {
-		Matrix l = v.lines[i].resolvePosition(tt, time);
-		for (int j = 1; j < 3; j++) {
-		    pos[j-1][i] = (int)l.getEntry(j, 0);
-		}
-	    }
-	    
-	    g.drawPolygon(pos[0], pos[1], pos[0].length);
-	    /*
-	    if (i == (m - 1)) {
-	    	if ((pos1 != null) && (pos2 != null)) {
-			//v.nose.print(System.out);
-			//System.out.println(pos1);
-			System.out.println(pos3.subtractFrom(pos1));
-		}
-	    }
-	    */
-	}
+	IntStream.range(0, m).parallel().forEach((vi) -> {
+		Vehicle v = universe.vehicles.get(vi);
+		double time = Simulator.time;
+		int[][] pos = new int[2][v.lines.length];
+		for (int i = 0; i < v.lines.length; i++) {
+		    Matrix l = v.lines[i].resolvePosition(tt, time);
+		    pos[0][i] = (int)l.getEntry(1, 0);
+		    pos[1][i] = (int)l.getEntry(2, 0);
+		};
+
+		g.setColor(v.color);
+		g.drawPolygon(pos[0], pos[1], pos[0].length);
+		/*
+		  if (i == (m - 1)) {
+		  if ((pos1 != null) && (pos2 != null)) {
+		  //v.nose.print(System.out);
+		  //System.out.println(pos1);
+		  System.out.println(pos3.subtractFrom(pos1));
+		  }
+		  }
+		*/
+	    });
     }
 }
