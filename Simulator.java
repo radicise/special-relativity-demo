@@ -24,10 +24,13 @@ public class Simulator {
 	derotator = Matrix.identity(4);
 	Display displ = new Display(512, 512, 256, 256, 10000.0d * (1.0d / Simulator.SCALING), universe = new Universe(), 2.5d * (SCALING / 100.0d));
 	JFrame frm = new JFrame();
-	frm.addKeyListener(new KeyHandler());
 	frm.add(displ);
 	frm.setSize(512 + 50, 512 + 150);
 	frm.setVisible(true);
+	frm.setFocusable(true);
+	displ.setFocusable(true);
+	displ.addKeyListener(new KeyHandler());
+	displ.requestFocus();
 	displ.createBufferStrategy(2);
 	BufferStrategy bufferStrategy = displ.getBufferStrategy();
 	Graphics gr = bufferStrategy.getDrawGraphics();
