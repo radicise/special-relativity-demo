@@ -85,6 +85,7 @@ public class Simulator {
 		//Thread.sleep(mn, nanos);
 		t2 = System.currentTimeMillis();
 		elapsed[0] = ((double) (t1 - t2)) / 1000.0d;
+		// System.out.println(elapsed[0]);
 		observerTime += (t2 - t1);
 		t1 = t2;
 	    }
@@ -224,6 +225,7 @@ class Display extends Canvas {
 	middleX = mX;
 	middleY = mY;
 	toScreen = new Matrix(new double[][] {
+		new double[] {1.0d, 0.0d, 0.0d, 0.0d},
 		new double[] {0.0d, scale, 0.0d, middleX},
 		new double[] {0.0d, 0.0d, -scale, middleX},
 	    });
@@ -244,15 +246,15 @@ class Display extends Canvas {
 	g.drawString("Observer time: " + Long.toString(ot / 1000l) + "." + Long.toString(ot % 1000l) + "seconds", 20, 40);
 	g.drawString("Buoy time: " + Double.toString(Simulator.totalTransformInv.getEntry(0, 3)) + "seconds", 20, 80);
 	int m = universe.vehicles.size();
-	Matrix tt = Simulator.totalTransform;
+	Matrix tt = toScreen.transform(rot.transform(Simulator.totalTransform));
 	int[][] centerVehicle = toScreen.transform(Vehicle.pts).toIntArray();
-	g.drawPolygon(centerVehicle[0], centerVehicle[1], centerVehicle[0].length);
+	g.drawPolygon(centerVehicle[1], centerVehicle[2], centerVehicle[1].length);
 	for (int vi = 0; vi < m; vi++) {
             Vehicle v = universe.vehicles.get(vi);
 	    g.setColor(v.color);
 	    double time = Simulator.time;
-	    int[][] pos = toScreen.transform(rot.transform(v.line.resolvePosition(tt, time))).toIntArray();
-	    g.drawPolygon(pos[0], pos[1], pos[0].length);
+	    int[][] pos = v.line.resolvePosition(tt, time).toIntArray();
+	    g.drawPolygon(pos[1], pos[2], pos[1].length);
 	    /*
 	    if (i == (m - 1)) {
 	    	if ((pos1 != null) && (pos2 != null)) {
