@@ -116,7 +116,7 @@ class Vehicle {
 		lines[i] = new WorldLine();
 		lines[i].addEvent(pts[i]);
 	}
-	color = new Color(255, 255, 255);
+	color = new Color(255, 0, 0);
     }
     Vehicle(double x, double y) {
 	Matrix adjustment = new Matrix(new double[][]{new double[]{0.0d}, new double[]{x}, new double[]{y}, new double[]{0.0d}});
@@ -222,15 +222,16 @@ class Display extends Canvas {
 		g.fillRect(middleX - (int) (viewDistance * scale), middleY - (int) (viewDistance * scale), (int) (viewDistance * scale * 2), (int) (viewDistance * scale * 2));
 		ofr = 0;
 	}
+	Matrix rot = Simulator.rotator;
 	g.setColor(WHITE);
 	Long ot = Simulator.observerTime;
-	g.drawString("Observer time: " + Long.toString(ot / 1000l) + "." + Long.toString(ot % 1000l) + "seconds", 0, 40);
-	g.drawString("Buoy time: " + Double.toString(Simulator.totalTransformInv.getEntry(0, 3)) + "seconds", 0, 80);
+	g.drawString("Observer time: " + Long.toString(ot / 1000l) + "." + Long.toString(ot % 1000l) + "seconds", 20, 40);
+	g.drawString("Buoy time: " + Double.toString(Simulator.totalTransformInv.getEntry(0, 3)) + "seconds", 20, 80);
 	int m = universe.vehicles.size();
 	Matrix tt = Simulator.totalTransform;
 	Matrix[] pos = new Matrix[Vehicle.pts.length];
 	for (int i = 0; i < Vehicle.pts.length; i++) {
-	    pos[i] = Simulator.rotator.transform(Vehicle.pts[i]);
+	    pos[i] = Vehicle.pts[i];
 	}
 	for (int i = 0; i < Vehicle.pts.length; i++) {
 	    Matrix pos1 = pos[i];
@@ -258,7 +259,7 @@ class Display extends Canvas {
 	    for (int i = 0; i < Vehicle.pts.length; i++) {
 	    	pos[i] = v.lines[i].resolvePosition(tt, time);
 		if (pos[i] != null) {
-		    pos[i] = Simulator.rotator.transform(pos[i]);
+		    pos[i] = rot.transform(pos[i]);
 		}
 	    }
 	    /*
