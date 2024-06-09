@@ -261,18 +261,16 @@ class Display extends Canvas {
 	Matrix tt = toScreen.transform(rot.transform(Simulator.totalTransform));
 	int[][] centerVehicle = toScreen.transform(Vehicle.ptsMatrix).toIntArray();
 	g.drawPolygon(centerVehicle[1], centerVehicle[2], centerVehicle[1].length);
+	int[][][] pos = new int[m][2][Vehicle.pts.length];
 	IntStream.range(0, m).parallel().forEach((vi) -> {
 		Vehicle v = universe.vehicles.get(vi);
 		double time = Simulator.time;
-		int[][] pos = new int[2][v.lines.length];
 		for (int i = 0; i < v.lines.length; i++) {
 		    Matrix l = v.lines[i].resolvePosition(tt, time);
-		    pos[0][i] = (int)l.getEntry(1, 0);
-		    pos[1][i] = (int)l.getEntry(2, 0);
+		    pos[vi][0][i] = (int)l.getEntry(1, 0);
+		    pos[vi][1][i] = (int)l.getEntry(2, 0);
 		};
 
-		g.setColor(v.color);
-		g.drawPolygon(pos[0], pos[1], pos[0].length);
 		/*
 		  if (i == (m - 1)) {
 		  if ((pos1 != null) && (pos2 != null)) {
@@ -283,5 +281,10 @@ class Display extends Canvas {
 		  }
 		*/
 	    });
+	for (int i = 0; i < m; i++) {
+	    Vehicle v = universe.vehicles.get(i);
+	    g.setColor(v.color);
+	    g.drawPolygon(pos[i][0], pos[i][1], pos[i][0].length);
+	}
     }
 }
