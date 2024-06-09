@@ -33,7 +33,12 @@ public class WorldLine {
 				event = transformation.transform(events.get(i));
 			}
 			catch (IndexOutOfBoundsException E) {
-				return null;
+				Matrix prevEvent = transformation.transform(events.get(i - 2));
+				event = transformation.transform(events.get(i - 1));
+				double transformedPrevTime = prevEvent.getEntry(0, 0);
+				double transformedTime = event.getEntry(0, 0);
+				Matrix pos = Matrix.weightedAvg(prevEvent, event, (time - transformedPrevTime) / (transformedTime - transformedPrevTime));
+				return pos;
 			}
 			double transformedTime = event.getEntry(0, 0);
 			if (transformedTime == time) {
@@ -45,7 +50,9 @@ public class WorldLine {
 					prevEvent = transformation.transform(events.get(i - 1));
 				}
 				catch (IndexOutOfBoundsException E) {
-					return null;
+					prevEvent = event;
+					event = transformation.transform(events.get(i + 1));
+					transformedTime = event.getEntry(0, 0);
 				}
 				double transformedPrevTime = prevEvent.getEntry(0, 0);
 				Matrix pos = Matrix.weightedAvg(prevEvent, event, (time - transformedPrevTime) / (transformedTime - transformedPrevTime));

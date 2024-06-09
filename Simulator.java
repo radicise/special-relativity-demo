@@ -91,6 +91,8 @@ public class Simulator {
 		t1 = t2;
 	    }
 	} catch (Exception E) {
+	    System.err.println(E);
+	    E.printStackTrace();
 	    System.exit(1);
 	}
     }
@@ -118,7 +120,7 @@ class Vehicle {
 		ptsMatrixInner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
 		ptsMatrixInner[3][i] = 1.0d;
 		ptst[i] = new Matrix(new double[][] {
-			new double[] {-Simulator.endOfTime},
+			new double[] {0.0d},
 			new double[] {Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE},
 			new double[] {Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE},
 			new double[] {1.0d}
