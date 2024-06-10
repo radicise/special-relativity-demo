@@ -108,31 +108,31 @@ class Vehicle {
     static Matrix[] ptst;
     static Matrix[] ptstt;
     static {
-	pts = new Matrix[8];
+	pts = new Matrix[16];
 	double[][] ptsMatrixInner = new double[4][pts.length];
 	ptst = new Matrix[pts.length];
 	ptstt = new Matrix[pts.length];
 	    for (int i = 0; i < pts.length; i++) {
 		pts[i] = new Matrix(new double[][] {
 			new double[] {0.0d},
-			new double[] {Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE},
-			new double[] {Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {Math.cos(((double) i) * (Math.PI / 8.0d)) * SIZE},
+			new double[] {Math.sin(((double) i) * (Math.PI / 8.0d)) * SIZE},
 			new double[] {1.0d}
 		    });
 		ptsMatrixInner[0][i] = 0.0d;
-		ptsMatrixInner[1][i] = Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE;
-		ptsMatrixInner[2][i] = Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE;
+		ptsMatrixInner[1][i] = Math.cos(((double) i) * (Math.PI / 8.0d)) * SIZE;
+		ptsMatrixInner[2][i] = Math.sin(((double) i) * (Math.PI / 8.0d)) * SIZE;
 		ptsMatrixInner[3][i] = 1.0d;
 		ptst[i] = new Matrix(new double[][] {
 			new double[] {0.0d},
-			new double[] {Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE},
-			new double[] {Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {Math.cos(((double) i) * (Math.PI / 8.0d)) * SIZE},
+			new double[] {Math.sin(((double) i) * (Math.PI / 8.0d)) * SIZE},
 			new double[] {1.0d}
 		    });
 		ptstt[i] = new Matrix(new double[][] {
 			new double[] {Simulator.endOfTime},
-			new double[] {Math.cos(((double) i) * (Math.PI / 4.0d)) * SIZE},
-			new double[] {Math.sin(((double) i) * (Math.PI / 4.0d)) * SIZE},
+			new double[] {Math.cos(((double) i) * (Math.PI / 8.0d)) * SIZE},
+			new double[] {Math.sin(((double) i) * (Math.PI / 8.0d)) * SIZE},
 			new double[] {1.0d}
 		    });
             }
