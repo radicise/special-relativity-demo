@@ -235,7 +235,6 @@ class Display extends Canvas {
     Universe universe;
     static final Color BLACK = new Color(0, 0, 0);
     static final Color WHITE = new Color(255, 255, 255);
-    static int ofr;
     Display(int x, int y, int mX, int mY, double s, Universe u, double v) {
 	width = x;
 	height = y;
@@ -246,19 +245,14 @@ class Display extends Canvas {
 	toScreen = new Matrix(new double[][] {
 		new double[] {1.0d, 0.0d, 0.0d, 0.0d},
 		new double[] {0.0d, scale, 0.0d, middleX},
-		new double[] {0.0d, 0.0d, -scale, middleX},
+		new double[] {0.0d, 0.0d, -scale, middleY},
 	    });
 	universe = u;
 	viewDistance = v;
-	ofr = 0;
     }
     public void paint(Graphics g) {
-	ofr++;
-	if (ofr == 4) {
-		g.setColor(BLACK);
-		g.fillRect(middleX - (int) (viewDistance * scale), middleY - (int) (viewDistance * scale), (int) (viewDistance * scale * 2), (int) (viewDistance * scale * 2));
-		ofr = 0;
-	}
+	g.setColor(BLACK);
+	g.fillRect(middleX - (int) (viewDistance * scale), middleY - (int) (viewDistance * scale), (int) (viewDistance * scale * 2), (int) (viewDistance * scale * 2));
 	Matrix rot = Simulator.rotator;
 	g.setColor(WHITE);
 	Long ot = Simulator.observerTime;
