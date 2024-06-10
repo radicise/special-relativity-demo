@@ -22,10 +22,11 @@ public class Simulator {
 	totalTransformInv = Matrix.identity(4);
 	rotator = Matrix.identity(4);
 	derotator = Matrix.identity(4);
-	Display displ = new Display(512, 512, 256, 256, 10000.0d * (1.0d / Simulator.SCALING), universe = new Universe(), 2.5d * (SCALING / 100.0d));
+	Display displ = new Display(512, 512, 256, 256, 10000.0d * (1.0d / Simulator.SCALING), universe = new Universe(), 2.56d * (SCALING / 100.0d));
 	JFrame frm = new JFrame();
 	frm.add(displ);
-	frm.setSize(512 + 50, 512 + 150);
+	// frm.setSize(512, 512+10);
+	frm.pack();
 	frm.setVisible(true);
 	frm.setFocusable(true);
 	displ.setFocusable(true);
@@ -238,6 +239,7 @@ class Display extends Canvas {
     Display(int x, int y, int mX, int mY, double s, Universe u, double v) {
 	width = x;
 	height = y;
+	setPreferredSize(new Dimension (width, height));
 	scale = s;
 	middleX = mX;
 	middleY = mY;
